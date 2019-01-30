@@ -22,6 +22,8 @@ class MotorDriver(object):
         GPIO.setup(self.PWMA2, GPIO.OUT)
         GPIO.setup(self.PWMB1, GPIO.OUT)
         GPIO.setup(self.PWMB2, GPIO.OUT)
+        GPIO.setup(self.D1, GPIO.OUT)
+        GPIO.setup(self.D2, GPIO.OUT)
         p1 = GPIO.PWM(self.D1, 500)
         p2 = GPIO.PWM(self.D2, 500)
         p1.start(50)
