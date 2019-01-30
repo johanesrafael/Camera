@@ -12,6 +12,8 @@ class MotorDriver(object):
         self.PWMA2 = 13
         self.PWMB1 = 20
         self.PWMB2 = 21
+        self.D1 = 12
+        self.D2 = 26
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
@@ -20,6 +22,10 @@ class MotorDriver(object):
         GPIO.setup(self.PWMA2, GPIO.OUT)
         GPIO.setup(self.PWMB1, GPIO.OUT)
         GPIO.setup(self.PWMB2, GPIO.OUT)
+        p1 = GPIO.PWM(self.D1, 500)
+        p2 = GPIO.PWM(self.D2, 500)
+        p1.start(50)
+        p2.start(50)
 
     def set_motor(self, A1, A2, B1, B2):
         GPIO.output(self.PWMA1, A1)
