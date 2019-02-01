@@ -15,6 +15,8 @@ class MotorDriver(object):
         self.D1 = 12
         self.D2 = 26
 
+        self.PWM = 50
+
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.PIN, GPIO.IN, GPIO.PUD_UP)
@@ -24,10 +26,10 @@ class MotorDriver(object):
         GPIO.setup(self.PWMB2, GPIO.OUT)
         GPIO.setup(self.D1, GPIO.OUT)
         GPIO.setup(self.D2, GPIO.OUT)
-        p1 = GPIO.PWM(self.D1, 500)
-        p2 = GPIO.PWM(self.D2, 500)
-        p1.start(50)
-        p2.start(50)
+        self.p1 = GPIO.PWM(self.D1, 500)
+        self.p2 = GPIO.PWM(self.D2, 500)
+        self.p1.start(50)
+        self.p2.start(50)
 
     def set_motor(self, A1, A2, B1, B2):
         GPIO.output(self.PWMA1, A1)
@@ -85,10 +87,38 @@ def motor_driver_test():
     print("stop")
     time.sleep(2.0)
 
-    GPIO.cleanup()
+def motor_driver_test_basic(PWM_VALUE):
+    """
+    Test where we go forewards, backwards, left, right and stop.
+    :return:
+    """
+    motor = MotorDriver()
+
+    motor.PWM = PWM_VALUE
+    motor.p1.ChangeDutyCycle(motor.PWM)
+    motor.p2.ChangeDutyCycle(motor.PWM)
+    print(str(motor.PWM))
+
+    motor.reverse()
+    print("pre-stop")
+    time.sleep(2.0)
+
+    motor.forward()
+    print("forward")
+    time.sleep(2.0)
+
+    
+    
+
+
+    
 
 if __name__ == "__main__":
     print("Starting Motor DRiver Test")
-    motor_driver_test()
+    pwm_value = 50
+    while True:
+        motor_driver_test_basic(pwm_value)
+        pwm_value += 10
+    GPIO.cleanup()
     print("Starting Motor DRiver Test...END")
 
