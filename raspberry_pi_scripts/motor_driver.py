@@ -89,7 +89,7 @@ def motor_driver_test():
 
 def motor_driver_test_basic(PWM_VALUE):
     """
-    Test where we go forewards, backwards, left, right and stop.
+    Test where we go forewards, backwards.
     :return:
     """
     motor = MotorDriver()
@@ -100,7 +100,7 @@ def motor_driver_test_basic(PWM_VALUE):
     print(str(motor.PWM))
 
     motor.reverse()
-    print("pre-stop")
+    print("reverse")
     time.sleep(2.0)
 
     motor.forward()
