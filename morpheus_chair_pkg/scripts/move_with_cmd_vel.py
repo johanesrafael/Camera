@@ -2,7 +2,7 @@
 import rospy
 from geometry_msgs.msg import Twist
 from motor_driver import MotorDriver
-from std_srvs.srv import Empty
+from std_srvs.srv import Empty, EmptyRequest
 
 class RobotMover(object):
 
@@ -12,7 +12,8 @@ class RobotMover(object):
         rospy.wait_for_service('/raspicam_node/start_capture')
 
         start_cam = rospy.ServiceProxy('/raspicam_node/start_capture', Empty)
-        start_cam(Empty())
+        request_e = EmptyRequest()
+        start_cam(request_e)
         rospy.loginfo("Started Camera")
 
 
