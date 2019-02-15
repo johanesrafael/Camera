@@ -1,5 +1,6 @@
 sudo apt-get install ros-kinetic-compressed-image-transport
 sudo apt-get install ros-kinetic-image-common
+sudo apt-get install ros-kinetic-image-view
 cd ~/catkin_ws/src
 git clone https://github.com/dganbold/raspicam_node.git
 cd ~/catkin_ws/

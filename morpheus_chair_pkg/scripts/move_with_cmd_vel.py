@@ -2,12 +2,19 @@
 import rospy
 from geometry_msgs.msg import Twist
 from motor_driver import MotorDriver
+from std_srvs.srv import Empty
 
 class RobotMover(object):
 
     def __init__(self):
         rospy.Subscriber("/cmd_vel", Twist, self.cmd_vel_callback)
         self.motor_driver = MotorDriver()
+        rospy.wait_for_service('/raspicam_node/start_capture')
+
+        start_cam = rospy.ServiceProxy('/raspicam_node/start_capture', Empty)
+        start_cam(Empty())
+        rospy.loginfo("Started Camera")
+
 
     def cmd_vel_callback(self, msg):
         forward_speed = msg.linear.x
