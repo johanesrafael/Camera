@@ -11,3 +11,5 @@ sudo apt-get install python-rosinstall python-rosinstall-generator python-wstool
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/
 catkin_make
+
+sudo apt-get install ros-kinetic-teleop-twist-keyboard
