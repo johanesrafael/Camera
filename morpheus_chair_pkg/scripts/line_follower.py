@@ -9,6 +9,11 @@ from sensor_msgs.msg import Image
 
 class LineFollower(object):
     def __init__(self, camera_topic="/raspicam_node/image_raw", cmd_vel_topic="/cmd_vel"):
+
+        # We check which OpenCV version is installed.
+        (self.major, minor, _) = cv2.__version__.split(".")
+        rospy.logwarn("OpenCV Version Installed==>"+str(self.major))
+
         self.bridge_object = CvBridge()
         self.image_sub = rospy.Subscriber(camera_topic, Image, self.camera_callback)
         self.cmd_vel_pub = rospy.Publisher(cmd_vel_topic, Twist, queue_size=1)
@@ -43,7 +48,13 @@ class LineFollower(object):
         # Bitwise-AND mask and original image
         res = cv2.bitwise_and(crop_img, crop_img, mask=mask)
 
-        contours, _ = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
+        if self.major == '3':
+            # If its 3
+            (_, contours, _) = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
+
+        else:
+            # If its 2 or 4
+            (contours, _) = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
         rospy.loginfo("Number of centroids==>" + str(len(contours)))
         centres = []
         for i in range(len(contours)):
