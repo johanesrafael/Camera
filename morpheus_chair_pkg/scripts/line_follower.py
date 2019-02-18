@@ -37,13 +37,14 @@ class LineFollower(object):
         height, width, channels = small_frame.shape
 
         rospy.loginfo("height=%s, width=%s" % (str(height), str(width)))
-        descentre = 160
-        rows_to_watch = 100
 
-        crop_img = small_frame[(height) / 2 + descentre:(height) / 2 + (descentre + rows_to_watch)][1:width]
+        #descentre = 160
+        #rows_to_watch = 100
+        #crop_img = small_frame[(height) / 2 + descentre:(height) / 2 + (descentre + rows_to_watch)][1:width]
 
         # Convert from RGB to HSV
-        hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
+        #hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(small_frame, cv2.COLOR_BGR2HSV)
 
         lower_yellow = np.array([20, 100, 100])
         upper_yellow = np.array([50, 255, 255])
