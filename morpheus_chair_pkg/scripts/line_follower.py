@@ -130,5 +130,5 @@ class LineFollower(object):
 if __name__ == '__main__':
     rospy.init_node('line_follower_start', anonymous=True)
     rgb_to_track = [77,32,49]
-    robot_mover = LineFollower(rgb_to_track=rgb_to_track, colour_error_perc= 10.0, colour_cal=False)
+    robot_mover = LineFollower(rgb_to_track=rgb_to_track, colour_error_perc= 20.0, colour_cal=False)
     robot_mover.loop()
