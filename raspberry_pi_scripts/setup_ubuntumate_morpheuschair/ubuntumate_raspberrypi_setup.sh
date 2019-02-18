@@ -12,6 +12,6 @@ ifconfig
 
 # Install RDS systems
 sudo apt install xrdp
-echo(" In your client computer -- sudo apt install remmina ")
+echo " In your client computer -- sudo apt install remmina "
 
 
