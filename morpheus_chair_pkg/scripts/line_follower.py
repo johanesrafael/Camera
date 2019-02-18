@@ -102,10 +102,10 @@ class LineFollower(object):
             cv2.circle(res, (int(cx), int(cy)), 5, (0, 0, 255), -1)
 
 
-        cv2.imshow("Original", cv_image)
+        #cv2.imshow("Original", cv_image)
         cv2.imshow("HSV", hsv)
         cv2.imshow("MASK", mask)
-        cv2.imshow("RES", res)
+        #cv2.imshow("RES", res)
 
         cv2.waitKey(1)
 
