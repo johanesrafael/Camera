@@ -31,10 +31,16 @@ class LineFollower(object):
         # Select the limits so that it gets the line not too close, not too far and the minimum portion possible
         # To make process faster.
         # TODO: Get multiple lines so that we can generate paths.
-        height, width, channels = cv_image.shape
+
+        small_frame = cv2.resize(cv_image, (0, 0), fx=0.2, fy=0.2)
+
+        height, width, channels = small_frame.shape
+
+        rospy.loginfo("height=%s, width=%s" % (str(height), str(width)))
         descentre = 160
         rows_to_watch = 100
-        crop_img = cv_image[(height) / 2 + descentre:(height) / 2 + (descentre + rows_to_watch)][1:width]
+
+        crop_img = small_frame[(height) / 2 + descentre:(height) / 2 + (descentre + rows_to_watch)][1:width]
 
         # Convert from RGB to HSV
         hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
