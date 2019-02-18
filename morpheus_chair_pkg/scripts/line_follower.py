@@ -118,7 +118,7 @@ class LineFollower(object):
             else:
                 cv2.imshow("HSV", hsv)
                 cv2.imshow("MASK", mask)
-                #cv2.imshow("RES", res)
+                cv2.imshow("RES", res)
 
             cv2.waitKey(1)
         else:
