@@ -8,8 +8,9 @@ from sensor_msgs.msg import Image
 
 
 class LineFollower(object):
-    def __init__(self, camera_topic="/raspicam_node/image_raw", cmd_vel_topic="/cmd_vel"):
+    def __init__(self, colour_cal=False, camera_topic="/raspicam_node/image_raw", cmd_vel_topic="/cmd_vel"):
 
+        self._colour_cal = colour_cal
         # We check which OpenCV version is installed.
         (self.major, minor, _) = cv2.__version__.split(".")
         rospy.logwarn("OpenCV Version Installed==>"+str(self.major))
@@ -106,11 +107,12 @@ class LineFollower(object):
                 # Draw the centroid in the result image
                 cv2.circle(res, (int(cx), int(cy)), 5, (0, 0, 255), -1)
 
-
-            #cv2.imshow("Original", cv_image)
-            cv2.imshow("HSV", hsv)
-            cv2.imshow("MASK", mask)
-            #cv2.imshow("RES", res)
+            if self._colour_cal:
+                cv2.imshow("Original", small_frame)
+            else:
+                cv2.imshow("HSV", hsv)
+                cv2.imshow("MASK", mask)
+                #cv2.imshow("RES", res)
 
             cv2.waitKey(1)
         else:
@@ -121,5 +123,5 @@ class LineFollower(object):
 
 if __name__ == '__main__':
     rospy.init_node('line_follower_start', anonymous=True)
-    robot_mover = LineFollower()
+    robot_mover = LineFollower(colour_cal=True)
     robot_mover.loop()
