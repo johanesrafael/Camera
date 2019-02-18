@@ -24,6 +24,7 @@ class LineFollower(object):
     def camera_callback(self, data):
 
         if self.process_this_frame:
+            self.process_this_frame = False
             try:
                 # We select bgr8 because its the OpenCV encoding by default
                 cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
@@ -111,7 +112,9 @@ class LineFollower(object):
             cv2.imshow("MASK", mask)
             #cv2.imshow("RES", res)
 
-            cv2.waitKey(0.1)
+            cv2.waitKey(1)
+        else:
+            self.process_this_frame = True
 
     def loop(self):
         rospy.spin()
