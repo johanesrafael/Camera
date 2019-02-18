@@ -5,12 +5,15 @@ import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Image
+from rgb_hsv import BGR_HSV
 
 
 class LineFollower(object):
-    def __init__(self, colour_cal=False, camera_topic="/raspicam_node/image_raw", cmd_vel_topic="/cmd_vel"):
+    def __init__(self, rgb_to_track, colour_error_perc = 10.0,colour_cal=False, camera_topic="/raspicam_node/image_raw", cmd_vel_topic="/cmd_vel"):
 
         self._colour_cal = colour_cal
+        self.rgb_hsv = BGR_HSV()
+        self.hsv, hsv_numpy_percentage = self.rgb_hsv.rgb_hsv(rgb=rgb_to_track)
         # We check which OpenCV version is installed.
         (self.major, minor, _) = cv2.__version__.split(".")
         rospy.logwarn("OpenCV Version Installed==>"+str(self.major))
@@ -52,8 +55,10 @@ class LineFollower(object):
             # Convert from RGB to HSV
             hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
 
-            lower_yellow = np.array([20, 100, 100])
-            upper_yellow = np.array([50, 255, 255])
+            min_hsv = self.hsv * (1.0-(10.0 / 100.0))
+            max_hsv = self.hsv * (1.0 + (10.0 / 100.0))
+            lower_yellow = np.array(min_hsv)
+            upper_yellow = np.array(max_hsv)
 
             # Threshold the HSV image to get only yellow colors
             mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
@@ -123,5 +128,6 @@ class LineFollower(object):
 
 if __name__ == '__main__':
     rospy.init_node('line_follower_start', anonymous=True)
-    robot_mover = LineFollower(colour_cal=True)
+    rgb_to_track = [77,32,49]
+    robot_mover = LineFollower(rgb_to_track=rgb_to_track, colour_error_perc= 10.0, colour_cal=True)
     robot_mover.loop()
