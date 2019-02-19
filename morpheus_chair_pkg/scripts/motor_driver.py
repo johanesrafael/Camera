@@ -28,7 +28,8 @@ class MotorDriver(object):
         # Wheel and chasis dimensions
         self._wheel_distance = wheel_distance
         self._wheel_radius = wheel_diameter / 2.0
-        self.MULTIPLIER = 0.1
+        self.MULTIPLIER_STANDARD = 0.1
+        self.MULTIPLIER_PIVOT = 1.0
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
@@ -77,18 +78,18 @@ class MotorDriver(object):
     def pivot_right(self):
         self.set_motor(0, 1, 1, 0)
 
-    def set_M1M2_speed(self, rpm_speedM1, rpm_speedM2):
+    def set_M1M2_speed(self, rpm_speedM1, rpm_speedM2, multiplier):
 
-        self.set_M1_speed(rpm_speedM1)
-        self.set_M2_speed(rpm_speedM2)
+        self.set_M1_speed(rpm_speedM1, multiplier)
+        self.set_M2_speed(rpm_speedM2, multiplier)
 
-    def set_M1_speed(self, rpm_speed):
+    def set_M1_speed(self, rpm_speed, multiplier):
 
-        self.PWM1 = min(int((rpm_speed * self.MULTIPLIER) * self.BASE_PWM), self.MAX_PWM)
+        self.PWM1 = min(int((rpm_speed * multiplier) * self.BASE_PWM), self.MAX_PWM)
         self.p1.ChangeDutyCycle(self.PWM1)
         print("M1="+str(self.PWM1))
 
-    def set_M2_speed(self, rpm_speed):
+    def set_M2_speed(self, rpm_speed, multiplier):
 
         self.PWM2 = min(int(rpm_speed * self.MULTIPLIER * self.BASE_PWM), self.MAX_PWM)
         self.p2.ChangeDutyCycle(self.PWM2)
@@ -146,33 +147,38 @@ class MotorDriver(object):
 
     def set_wheel_movement(self, right_wheel_rpm, left_wheel_rpm):
 
-        self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm))
-
         print("W1,W2=["+str(right_wheel_rpm)+","+str(left_wheel_rpm)+"]")
 
         if right_wheel_rpm > 0.0 and left_wheel_rpm > 0.0:
             print("All forwards")
+            self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
             self.forward()
         elif right_wheel_rpm > 0.0 and left_wheel_rpm == 0.0:
             print("Right Wheel forwards, left stop")
+            self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
             self.left()
         elif right_wheel_rpm > 0.0 and left_wheel_rpm < 0.0:
             print("Right Wheel forwards, left backwards --> Pivot left")
+            self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_PIVOT)
             self.pivot_left()
         elif right_wheel_rpm == 0.0 and left_wheel_rpm > 0.0:
             print("Right stop, left forwards")
+            self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
             self.right()
         elif right_wheel_rpm < 0.0 and left_wheel_rpm > 0.0:
             print("Right backwards, left forwards --> Pivot right")
+            self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_PIVOT)
             self.pivot_right()
         elif right_wheel_rpm < 0.0 and left_wheel_rpm < 0.0:
             print("All backwards")
+            self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
             self.reverse()
         elif right_wheel_rpm == 0.0 and left_wheel_rpm == 0.0:
             print("Right stop, left stop")
+            self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
             self.stop()
         else:
-            assert False, "A case wasnt considered==>"+str(right_wheel_rpm)+","+str(left_wheel_rpm)
+            assert False, "A case wasn't considered==>"+str(right_wheel_rpm)+","+str(left_wheel_rpm)
             pass
 
     def set_cmd_vel(self, linear_speed, angular_speed):
