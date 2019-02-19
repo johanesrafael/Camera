@@ -144,7 +144,7 @@ class MotorDriver(object):
 
     def set_wheel_movement(self, right_wheel_rpm, left_wheel_rpm):
 
-        self.set_M1M2_speed(right_wheel_rpm, left_wheel_rpm)
+        self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm))
 
         if right_wheel_rpm > 0.0 and left_wheel_rpm > 0.0:
             # All forwards
