@@ -28,6 +28,7 @@ class MotorDriver(object):
         # Wheel and chasis dimensions
         self._wheel_distance = wheel_distance
         self._wheel_radius = wheel_diameter / 2.0
+        self.MULTIPLIER = 0.1
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
@@ -83,7 +84,7 @@ class MotorDriver(object):
 
     def set_M1_speed(self, rpm_speed):
 
-        self.PWM1 = min(int(rpm_speed * self.BASE_PWM), self.MAX_PWM)
+        self.PWM1 = min(int((rpm_speed * self.MULTIPLIER) * self.BASE_PWM), self.MAX_PWM)
         self.p1.ChangeDutyCycle(self.PWM1)
         print("M1="+str(self.PWM1))
 
@@ -104,13 +105,14 @@ class MotorDriver(object):
     def calculate_wheel_turn_radius(self, body_turn_radius, angular_speed, wheel):
 
         if body_turn_radius is not None:
+            """
             if angular_speed > 0.0:
                 angular_speed_sign = 1
             elif angular_speed < 0.0:
                 angular_speed_sign = -1
             else:
                 angular_speed_sign = 0.0
-
+            """
             if wheel == "right":
                 wheel_sign = 1
             elif wheel == "left":
@@ -118,7 +120,7 @@ class MotorDriver(object):
             else:
                 assert False, "Wheel Name not supported, left or right only."
 
-            wheel_turn_radius = body_turn_radius + ( wheel_sign * angular_speed_sign * (self._wheel_distance / 2.0))
+            wheel_turn_radius = body_turn_radius + ( wheel_sign * (self._wheel_distance / 2.0))
         else:
             wheel_turn_radius = None
 
