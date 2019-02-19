@@ -55,28 +55,28 @@ class MotorDriver(object):
         GPIO.output(self.PWMB2, B2)
 
     def forward(self):
-        self.set_motor(1, 0, 1, 0)
+        self.set_motor(0, 1, 0, 1)
 
     def stop(self):
         self.set_motor(0, 0, 0, 0)
 
 
     def reverse(self):
-        self.set_motor(0, 1, 0, 1)
+        self.set_motor(1, 0, 1, 0)
 
 
     def left(self):
-        self.set_motor(1, 0, 0, 0)
+        self.set_motor(0, 1, 0, 0)
 
     def pivot_left(self):
-        self.set_motor(1, 0, 0, 1)
+        self.set_motor(0, 1, 1, 0)
 
 
     def right(self):
-        self.set_motor(0, 0, 1, 0)
+        self.set_motor(0, 0, 0, 1)
 
     def pivot_right(self):
-        self.set_motor(0, 1, 1, 0)
+        self.set_motor(1, 0, 0, 1)
 
     def set_M1M2_speed(self, rpm_speedM1, rpm_speedM2, multiplier):
 
