@@ -18,24 +18,12 @@ class RobotMover(object):
 
 
     def cmd_vel_callback(self, msg):
-        forward_speed = msg.linear.x
-        turn_speed = msg.angular.z
+        linear_speed = msg.linear.x
+        angular_speed = msg.angular.z
 
         # Decide Speed
-        self.motor_driver.set_speed(forward_speed)
+        self.motor_driver.set_cmd_vel(linear_speed, angular_speed)
 
-        # Decide Direction to move
-        if turn_speed > 0:
-            self.motor_driver.right()
-        elif turn_speed < 0:
-            self.motor_driver.left()
-        else:
-            if forward_speed > 0:
-                self.motor_driver.forward()
-            elif forward_speed < 0:
-                self.motor_driver.reverse()
-            else:
-                self.motor_driver.stop()
 
     def listener(self):
         rospy.spin()

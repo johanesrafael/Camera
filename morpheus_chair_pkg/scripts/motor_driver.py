@@ -5,8 +5,13 @@ import time
 
 class MotorDriver(object):
 
-    def __init__(self):
-
+    def __init__(self, wheel_distance=0.098, wheel_diameter=0.066):
+        """
+        M1 = Right Wheel
+        M2 = Left Wheel
+        :param wheel_distance: Distance Between wheels in meters
+        :param wheel_diameter: Diameter of the wheels in meters
+        """
         self.PIN = 18
         self.PWMA1 = 6
         self.PWMA2 = 13
@@ -15,7 +20,14 @@ class MotorDriver(object):
         self.D1 = 12
         self.D2 = 26
 
-        self.PWM = 50
+        self.PWM1 = 50
+        self.PWM2 = 50
+        self.BASE_PWM = 50
+        self.MAX_PWM = 100
+
+        # Wheel and chasis dimensions
+        self._wheel_distance = wheel_distance
+        self._wheel_radius = wheel_diameter / 2.0
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
@@ -54,17 +66,129 @@ class MotorDriver(object):
     def left(self):
         self.set_motor(1, 0, 0, 0)
 
+    def pivot_left(self):
+        self.set_motor(1, 0, 0, 1)
+
 
     def right(self):
         self.set_motor(0, 0, 1, 0)
 
-    def set_speed(self, speed):
+    def pivot_right(self):
+        self.set_motor(0, 1, 1, 0)
 
-        self.PWM = int(speed*10) + 50
+    def set_M1M2_speed(self, rpm_speedM1, rpm_speedM2):
 
-        self.p1.ChangeDutyCycle(self.PWM)
-        self.p2.ChangeDutyCycle(self.PWM)
+        self.set_M1_speed(rpm_speedM1)
+        self.set_M2_speed(rpm_speedM2)
 
-        print(str(self.PWM))
+    def set_M1_speed(self, rpm_speed):
+
+        self.PWM1 = min(int(rpm_speed * self.BASE_PWM), self.MAX_PWM)
+        self.p1.ChangeDutyCycle(self.PWM1)
+        print(str(self.PWM1))
+
+    def set_M2_speed(self, rpm_speed):
+
+        self.PWM1 = min(int(rpm_speed * self.BASE_PWM), self.MAX_PWM)
+        self.p2.ChangeDutyCycle(self.PWM2)
+        print(str(self.PWM2))
+
+    def calculate_body_turn_radius(self, linear_speed, angular_speed):
+        if angular_speed != 0.0:
+            body_turn_radius = linear_speed / angular_speed
+        else:
+            # Not turning, infinite turn radius
+            body_turn_radius = None
+        return body_turn_radius
+
+    def calculate_wheel_turn_radius(self, body_turn_radius, angular_speed, wheel):
+
+        if body_turn_radius is not None:
+            if angular_speed > 0.0:
+                angular_speed_sign = 1
+            elif angular_speed < 0.0:
+                angular_speed_sign = -1
+            else:
+                angular_speed_sign = 0.0
+
+            if wheel == "right":
+                wheel_sign = 1
+            elif wheel == "left":
+                wheel_sign = -1
+            else:
+                assert False, "Wheel Name not supported, left or right only."
+
+            wheel_turn_radius = body_turn_radius + ( wheel_sign * angular_speed_sign * (self._wheel_distance / 2.0))
+        else:
+            wheel_turn_radius = None
+
+        return wheel_turn_radius
+
+    def calculate_wheel_rpm(self, linear_speed, angular_speed, wheel_turn_radius):
+        """
+        Omega_wheel = Linear_Speed_Wheel / Wheel_Radius
+        Linear_Speed_Wheel = Omega_Turn_Body * Radius_Turn_Wheel
+        --> If there is NO Omega_Turn_Body, Linear_Speed_Wheel = Linear_Speed_Body
+        :param angular_speed:
+        :param wheel_turn_radius:
+        :return:
+        """
+        if wheel_turn_radius is not None:
+            # The robot is turning
+            wheel_rpm = (angular_speed * wheel_turn_radius) / self._wheel_radius
+        else:
+            # Its not turning therefore the wheel speed is the same as the body
+            wheel_rpm = linear_speed / self._wheel_radius
+
+        return wheel_rpm
+
+    def set_wheel_movement(self, right_wheel_rpm, left_wheel_rpm):
+
+        self.set_M1M2_speed(right_wheel_rpm, left_wheel_rpm)
+
+        if right_wheel_rpm > 0.0 and left_wheel_rpm > 0.0:
+            # All forwards
+            self.forward()
+        elif right_wheel_rpm > 0.0 and left_wheel_rpm == 0.0:
+            # Right Wheel forwards, left stop
+            self.left()
+        elif right_wheel_rpm > 0.0 and left_wheel_rpm < 0.0:
+            # Right Wheel forwards, left backwards --> Pivot left
+            self.pivot_left()
+        elif right_wheel_rpm == 0.0 and left_wheel_rpm > 0.0:
+            # Right stop, left forwards
+            self.right()
+        elif right_wheel_rpm < 0.0 and left_wheel_rpm > 0.0:
+            # Right backwards, left forwards --> Pivot right
+            self.pivot_right()
+        elif right_wheel_rpm < 0.0 and left_wheel_rpm < 0.0:
+            # Right bakcward, left bakcward
+            self.reverse()
+        elif right_wheel_rpm == 0.0 and left_wheel_rpm == 0.0:
+            # Right stop, left stop
+            self.stop()
+        else:
+            assert False, "A case wasnt considered==>"+str(right_wheel_rpm)+","+str(left_wheel_rpm)
+            pass
+
+    def set_cmd_vel(self, linear_speed, angular_speed):
+
+        body_turn_radius = self.calculate_body_turn_radius(linear_speed, angular_speed)
+
+        wheel = "right"
+        right_wheel_turn_radius = self.calculate_wheel_turn_radius(body_turn_radius,
+                                                                   angular_speed,
+                                                                   wheel)
+
+        wheel = "left"
+        left_wheel_turn_radius = self.calculate_wheel_turn_radius(body_turn_radius,
+                                                                  angular_speed,
+                                                                  wheel)
+
+        right_wheel_rpm = self.calculate_wheel_rpm(linear_speed, angular_speed, right_wheel_turn_radius)
+        left_wheel_rpm = self.calculate_wheel_rpm(linear_speed, angular_speed, left_wheel_turn_radius)
+
+
+        self.set_wheel_movement(right_wheel_rpm, left_wheel_rpm)
 
 
