@@ -20,8 +20,8 @@ class MotorDriver(object):
         self.D1 = 12
         self.D2 = 26
 
-        self.PWM1 = 50
-        self.PWM2 = 50
+        self.PWM1 = 0
+        self.PWM2 = 0
         self.BASE_PWM = 50
         self.MAX_PWM = 100
 
@@ -41,8 +41,8 @@ class MotorDriver(object):
         GPIO.setup(self.D2, GPIO.OUT)
         self.p1 = GPIO.PWM(self.D1, 500)
         self.p2 = GPIO.PWM(self.D2, 500)
-        self.p1.start(50)
-        self.p2.start(50)
+        self.p1.start(self.PWM1)
+        self.p2.start(self.PWM2)
 
     def __del__(self):
         GPIO.cleanup()
