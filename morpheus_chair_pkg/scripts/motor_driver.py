@@ -90,9 +90,9 @@ class MotorDriver(object):
 
     def set_M2_speed(self, rpm_speed):
 
-        self.PWM2 = min(int(rpm_speed * self.BASE_PWM), self.MAX_PWM)
+        self.PWM2 = min(int(rpm_speed * self.MULTIPLIER * self.BASE_PWM), self.MAX_PWM)
         self.p2.ChangeDutyCycle(self.PWM2)
-        print("M1="+str(self.PWM2))
+        print("M2="+str(self.PWM2))
 
     def calculate_body_turn_radius(self, linear_speed, angular_speed):
         if angular_speed != 0.0:
