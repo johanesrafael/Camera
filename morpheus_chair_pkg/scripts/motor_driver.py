@@ -146,26 +146,28 @@ class MotorDriver(object):
 
         self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm))
 
+        print("W1,W2=["+str(right_wheel_rpm)+","+str(left_wheel_rpm)+"]")
+
         if right_wheel_rpm > 0.0 and left_wheel_rpm > 0.0:
-            # All forwards
+            print("All forwards")
             self.forward()
         elif right_wheel_rpm > 0.0 and left_wheel_rpm == 0.0:
-            # Right Wheel forwards, left stop
+            print("Right Wheel forwards, left stop")
             self.left()
         elif right_wheel_rpm > 0.0 and left_wheel_rpm < 0.0:
-            # Right Wheel forwards, left backwards --> Pivot left
+            print("Right Wheel forwards, left backwards --> Pivot left")
             self.pivot_left()
         elif right_wheel_rpm == 0.0 and left_wheel_rpm > 0.0:
-            # Right stop, left forwards
+            print("Right stop, left forwards")
             self.right()
         elif right_wheel_rpm < 0.0 and left_wheel_rpm > 0.0:
-            # Right backwards, left forwards --> Pivot right
+            print("Right backwards, left forwards --> Pivot right")
             self.pivot_right()
         elif right_wheel_rpm < 0.0 and left_wheel_rpm < 0.0:
-            # Right bakcward, left bakcward
+            print("All backwards")
             self.reverse()
         elif right_wheel_rpm == 0.0 and left_wheel_rpm == 0.0:
-            # Right stop, left stop
+            print("Right stop, left stop")
             self.stop()
         else:
             assert False, "A case wasnt considered==>"+str(right_wheel_rpm)+","+str(left_wheel_rpm)
