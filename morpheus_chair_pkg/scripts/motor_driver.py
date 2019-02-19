@@ -91,7 +91,7 @@ class MotorDriver(object):
 
     def set_M2_speed(self, rpm_speed, multiplier):
 
-        self.PWM2 = min(int(rpm_speed * self.MULTIPLIER * self.BASE_PWM), self.MAX_PWM)
+        self.PWM2 = min(int(rpm_speed * multiplier * self.BASE_PWM), self.MAX_PWM)
         self.p2.ChangeDutyCycle(self.PWM2)
         print("M2="+str(self.PWM2))
 
