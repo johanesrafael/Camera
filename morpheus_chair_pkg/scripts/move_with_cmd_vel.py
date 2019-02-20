@@ -7,7 +7,7 @@ from std_srvs.srv import Empty, EmptyRequest
 class RobotMover(object):
 
     def __init__(self):
-        rospy.Subscriber("/cmd_vel", Twist, self.cmd_vel_callback)
+        rospy.Subscriber("/morpheus_bot/cmd_vel", Twist, self.cmd_vel_callback)
         self.motor_driver = MotorDriver()
         rospy.wait_for_service('/raspicam_node/start_capture')
 
