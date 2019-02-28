@@ -4,11 +4,8 @@
 
 
     <include>
-      <uri>model://ground_plane</uri>
-    </include>
-
-    <include>
-      <uri>model://line_plane</uri>
+      <uri>model://line_test</uri>
+      <pose>0 0 0 0 0 0</pose>
     </include>
 
     <!-- Lights -->
