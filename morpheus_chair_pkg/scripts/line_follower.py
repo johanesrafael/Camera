@@ -9,7 +9,7 @@ from rgb_hsv import BGR_HSV
 
 
 class LineFollower(object):
-    def __init__(self, rgb_to_track, colour_error_perc = 10.0,colour_cal=False, camera_topic="/raspicam_node/image_raw", cmd_vel_topic="/cmd_vel"):
+    def __init__(self, rgb_to_track, colour_error_perc = 10.0,colour_cal=False, camera_topic="/morpheus_bot/raspicam_node/image_raw", cmd_vel_topic="/cmd_vel"):
 
         self._colour_cal = colour_cal
         self._colour_error_perc = colour_error_perc
@@ -129,6 +129,6 @@ class LineFollower(object):
 
 if __name__ == '__main__':
     rospy.init_node('line_follower_start', anonymous=True)
-    rgb_to_track = [77,32,49]
+    rgb_to_track = [255,255,255]
     robot_mover = LineFollower(rgb_to_track=rgb_to_track, colour_error_perc= 20.0, colour_cal=False)
     robot_mover.loop()
