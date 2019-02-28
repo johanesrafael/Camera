@@ -9,7 +9,7 @@ from rgb_hsv import BGR_HSV
 
 
 class LineFollower(object):
-    def __init__(self, rgb_to_track, colour_error_perc = 10.0,colour_cal=False, camera_topic="/morpheus_bot/raspicam_node/image_raw", cmd_vel_topic="/cmd_vel"):
+    def __init__(self, rgb_to_track, colour_error_perc = 10.0,colour_cal=False, camera_topic="/morpheus_bot/raspicam_node/image_raw", cmd_vel_topic="/morpheus_bot/cmd_vel"):
 
         self._colour_cal = colour_cal
         self._colour_error_perc = colour_error_perc
@@ -119,10 +119,67 @@ class LineFollower(object):
                 cv2.imshow("HSV", hsv)
                 cv2.imshow("MASK", mask)
                 cv2.imshow("RES", res)
+            
+            # We send data from the first cetroid we get
+            if len(centroids_detected) > 0:
+                
+                cx_final = width
+                cy_final = height
+                
+                for centroid in centroids_detected:
+                    # We get the values of the centroid closer to us
+                    print(centroid)
+                    if centroid[1]< cy_final:
+                        cx_final = centroid[0]
+                        cy_final = centroid[1]
+                        print("Selected CENTROID AS FINAL")
+            else:
+                cx_final = None
+                cy_final = None
+                
+            self.move_robot(height, width, cx_final, cy_final)
 
             cv2.waitKey(1)
         else:
             self.process_this_frame = True
+            
+            
+            
+    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.1, angular_vel_base = 0.1):
+        """
+        It move the Robot based on the Centroid Data
+        image_dim_x=96, image_dim_y=128
+        cx, cy = [(77, 71)]
+        """
+        cmd_vel = Twist()
+        cmd_vel.linear.x = 0.0
+        cmd_vel.angular.z = 0.0
+        
+        FACTOR_LINEAR = 0.001
+        FACTOR_ANGULAR = 0.1
+        
+        
+        if cx is not None and cy is not None:
+            origin = [image_dim_x / 2.0, image_dim_y / 2.0]
+            centroid = [cx, cy]
+            delta = [centroid[0] - origin[0], centroid[1]]
+            
+            print("origin="+str(origin))
+            print("centroid="+str(centroid))
+            print("delta="+str(delta))
+            
+            # -1 because when delta is positive we want to turn right, which means sending a negative angular
+            cmd_vel.angular.z = angular_vel_base * delta[0] * FACTOR_ANGULAR * -1
+            # If its further away it has to go faster, closer then slower
+            cmd_vel.linear.x = linear_vel_base - delta[1] * FACTOR_LINEAR
+            
+        else:
+            cmd_vel.angular.z = angular_vel_base * 2
+            cmd_vel.linear.x = linear_vel_base * 0.5
+            print("NO CENTROID DETECTED...SEARCHING...")
+        
+        print("SPEED==>["+str(cmd_vel.linear.x)+","+str(cmd_vel.angular.z)+"]")
+        self.cmd_vel_pub.publish(cmd_vel)
 
     def loop(self):
         rospy.spin()
