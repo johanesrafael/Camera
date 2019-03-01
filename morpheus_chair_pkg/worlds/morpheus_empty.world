@@ -4,8 +4,7 @@
 
 
     <include>
-      <uri>model://line_test</uri>
-      <pose>0 0 0 0 0 0</pose>
+      <uri>model://ground_plane</uri>
     </include>
 
     <!-- Lights -->
@@ -28,7 +27,6 @@
       <cast_shadows>0</cast_shadows>
       <direction>0 0 -1</direction>
     </light>
-    
 
     
   </world>
