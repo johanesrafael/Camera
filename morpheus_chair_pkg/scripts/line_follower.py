@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rospy
+import sys
 import cv2
 import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
@@ -186,6 +187,17 @@ class LineFollower(object):
 
 if __name__ == '__main__':
     rospy.init_node('line_follower_start', anonymous=True)
-    rgb_to_track = [255,255,255]
-    robot_mover = LineFollower(rgb_to_track=rgb_to_track, colour_error_perc= 20.0, colour_cal=False)
-    robot_mover.loop()
+
+    rospy.loginfo(str(len(sys.argv)))
+    if len(sys.argv) > 4:
+        red_value = int(sys.argv[1])
+        green_value = int(sys.argv[2])
+        blue_value = int(sys.argv[3])
+        mode_value = sys.argv[4]
+
+        is_colour_cal = mode_value == "colour_cal"
+
+        #rgb_to_track = [255,255,255]
+        rgb_to_track = [red_value, green_value, blue_value]
+        robot_mover = LineFollower(rgb_to_track=rgb_to_track, colour_error_perc= 20.0, colour_cal=is_colour_cal)
+        robot_mover.loop()

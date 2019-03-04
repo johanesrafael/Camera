@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
+
+        <arg name="R" default="3.603035" />
+        <arg name="G" default="-3.594756" />
+        <arg name="B" default="0.0" />
+        <arg name="mode" default="follow" />
+
         <node name="line_follower_start"
             pkg="morpheus_chair_pkg"
             type="line_follower.py"
-            respawn="false" output="screen">
+            respawn="false" output="screen" args="$(arg R) $(arg G) $(arg B) $(arg mode)">
         </node>
 </launch>
