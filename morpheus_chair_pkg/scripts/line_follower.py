@@ -189,10 +189,12 @@ if __name__ == '__main__':
     rospy.init_node('line_follower_start', anonymous=True)
 
     rospy.loginfo(str(len(sys.argv)))
+    rospy.loginfo(str(sys.argv))
+
     if len(sys.argv) > 4:
-        red_value = int(sys.argv[1])
-        green_value = int(sys.argv[2])
-        blue_value = int(sys.argv[3])
+        red_value = int(float(sys.argv[1]))
+        green_value = int(float(sys.argv[2]))
+        blue_value = int(float(sys.argv[3]))
         mode_value = sys.argv[4]
 
         is_colour_cal = mode_value == "colour_cal"
