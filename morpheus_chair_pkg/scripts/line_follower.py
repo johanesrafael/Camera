@@ -191,15 +191,18 @@ if __name__ == '__main__':
     rospy.loginfo(str(len(sys.argv)))
     rospy.loginfo(str(sys.argv))
 
-    if len(sys.argv) > 4:
+    if len(sys.argv) > 5:
         red_value = int(float(sys.argv[1]))
         green_value = int(float(sys.argv[2]))
         blue_value = int(float(sys.argv[3]))
-        mode_value = sys.argv[4]
+        colour_error_perc_value = float(sys.argv[4])
+        mode_value = sys.argv[5]
 
         is_colour_cal = mode_value == "colour_cal"
 
         #rgb_to_track = [255,255,255]
         rgb_to_track = [red_value, green_value, blue_value]
-        robot_mover = LineFollower(rgb_to_track=rgb_to_track, colour_error_perc= 20.0, colour_cal=is_colour_cal)
+        robot_mover = LineFollower(rgb_to_track=rgb_to_track,
+                                   colour_error_perc= colour_error_perc_value,
+                                   colour_cal=is_colour_cal)
         robot_mover.loop()
