@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-        <arg name="R" default="255" />
-        <arg name="G" default="255" />
-        <arg name="B" default="255" />
+        <arg name="R" default="144" />
+        <arg name="G" default="150" />
+        <arg name="B" default="142" />
+        <!-- mode if its different from colour cal, it will start following line-->
         <arg name="mode" default="colour_cal" />
 
         <node name="line_follower_start"
