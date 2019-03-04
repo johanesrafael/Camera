@@ -10,10 +10,10 @@ from rgb_hsv import BGR_HSV
 
 
 class LineFollower(object):
-    def __init__(self, rgb_to_track, colour_error_perc = 10.0,colour_cal=False, camera_topic="/morpheus_bot/raspicam_node/image_raw", cmd_vel_topic="/morpheus_bot/cmd_vel"):
+    def __init__(self, rgb_to_track, colour_error = 10.0,colour_cal=False, camera_topic="/morpheus_bot/raspicam_node/image_raw", cmd_vel_topic="/morpheus_bot/cmd_vel"):
 
         self._colour_cal = colour_cal
-        self._colour_error_perc = colour_error_perc
+        self._colour_error = colour_error
         self.rgb_hsv = BGR_HSV()
         self.hsv, hsv_numpy_percentage = self.rgb_hsv.rgb_hsv(rgb=rgb_to_track)
         # We check which OpenCV version is installed.
@@ -57,8 +57,8 @@ class LineFollower(object):
             # Convert from RGB to HSV
             hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
 
-            min_hsv = self.hsv * (1.0-(self._colour_error_perc / 100.0))
-            max_hsv = self.hsv * (1.0 + (self._colour_error_perc / 100.0))
+            min_hsv = self.hsv * (1.0-(self._colour_error / 100.0))
+            max_hsv = self.hsv * (1.0 + (self._colour_error / 100.0))
             lower_yellow = np.array(min_hsv)
             upper_yellow = np.array(max_hsv)
 
@@ -195,7 +195,7 @@ if __name__ == '__main__':
         red_value = int(float(sys.argv[1]))
         green_value = int(float(sys.argv[2]))
         blue_value = int(float(sys.argv[3]))
-        colour_error_perc_value = float(sys.argv[4])
+        colour_error_value = float(sys.argv[4])
         mode_value = sys.argv[5]
 
         is_colour_cal = mode_value == "colour_cal"
@@ -203,6 +203,6 @@ if __name__ == '__main__':
         #rgb_to_track = [255,255,255]
         rgb_to_track = [red_value, green_value, blue_value]
         robot_mover = LineFollower(rgb_to_track=rgb_to_track,
-                                   colour_error_perc= colour_error_perc_value,
+                                   colour_error= colour_error_value,
                                    colour_cal=is_colour_cal)
         robot_mover.loop()
