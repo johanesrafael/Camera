@@ -5,7 +5,7 @@ import time
 
 class MotorDriver(object):
 
-    def __init__(self, wheel_distance=0.098, wheel_diameter=0.066):
+    def __init__(self, wheel_distance=0.098, wheel_diameter=0.066, i_BASE_PWM=50, i_MULTIPLIER_STANDARD=0.1, i_MULTIPLIER_PIVOT=1.0):
         """
         M1 = Right Wheel
         M2 = Left Wheel
@@ -22,13 +22,13 @@ class MotorDriver(object):
 
         self.PWM1 = 0
         self.PWM2 = 0
-        self.BASE_PWM = 50
+        self.BASE_PWM = i_BASE_PWM
         self.MAX_PWM = 100
 
         # Wheel and chasis dimensions
         self._wheel_distance = wheel_distance
         self._wheel_radius = wheel_diameter / 2.0
-        self.MULTIPLIER_STANDARD = 0.1
+        self.MULTIPLIER_STANDARD = i_MULTIPLIER_STANDARD
         self.MULTIPLIER_PIVOT = 1.0
 
         GPIO.setmode(GPIO.BCM)
