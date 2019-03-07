@@ -155,8 +155,8 @@ class LineFollower(object):
         FACTOR_ANGULAR = 0.1
 
         delta_left_percentage_not_important = 0.1
-        min_lin = 0.26
-        min_ang = 0.7
+        min_lin = 0.36
+        min_ang = 0.85
         
         if cx is not None and cy is not None:
             origin = [image_dim_x / 2.0, image_dim_y / 2.0]
