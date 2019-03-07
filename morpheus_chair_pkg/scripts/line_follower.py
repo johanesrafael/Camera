@@ -46,12 +46,6 @@ class LineFollower(object):
                 print(e)
                 cv_image = None
 
-            # We get image dimensions and crop the parts of the image we dont need
-            # Bare in mind that because its image matrix first value is start and second value is down limit.
-            # Select the limits so that it gets the line not too close, not too far and the minimum portion possible
-            # To make process faster.
-            # TODO: Get multiple lines so that we can generate paths.
-
             if cv_image is not None:
                 small_frame = cv2.resize(cv_image, (0, 0), fx=0.1, fy=0.1)
 
@@ -112,12 +106,8 @@ class LineFollower(object):
 
                 if self._colour_cal:
                     cv2.imshow("Original", small_frame)
-                    #cv2.imshow("HSV", hsv)
-                    #cv2.imshow("MASK", mask)
-                    cv2.imshow("RES", res)
                     cv2.waitKey(1)
                 else:
-                    cv2.imshow("Original", small_frame)
                     cv2.imshow("RES", res)
                     cv2.waitKey(1)
 
