@@ -50,7 +50,7 @@ class LineFollower(object):
             # To make process faster.
             # TODO: Get multiple lines so that we can generate paths.
 
-            if cv_image:
+            if cv_image is not None:
                 small_frame = cv2.resize(cv_image, (0, 0), fx=0.2, fy=0.2)
 
                 height, width, channels = small_frame.shape
