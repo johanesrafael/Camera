@@ -165,10 +165,10 @@ class MotorDriver(object):
                 # We make it turn only on one wheel
                 if right_wheel_rpm > left_wheel_rpm:
                     print("GO FORWARDS RIGHT")
-                    self.left()
+                    self.right()
                 if right_wheel_rpm < left_wheel_rpm:
                     print("GO FORWARDS LEFT")
-                    self.right()
+                    self.left()
                 if right_wheel_rpm == left_wheel_rpm:
                     print("GO FORWARDS")
                     self.forward()
