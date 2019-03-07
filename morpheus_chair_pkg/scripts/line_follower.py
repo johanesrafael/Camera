@@ -31,7 +31,7 @@ class LineFollower(object):
     def camera_callback(self, data):
 
         # It seems that making tests, the rapsicam doesnt update the image until 6 frames have passed
-        self.process_this_frame = self.droped_frames >= 6
+        self.process_this_frame = self.droped_frames >= 0
 
         if self.process_this_frame:
             # We reset the counter
@@ -42,6 +42,7 @@ class LineFollower(object):
                 cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
             except CvBridgeError as e:
                 print(e)
+                cv_image = None
 
             # We get image dimensions and crop the parts of the image we dont need
             # Bare in mind that because its image matrix first value is start and second value is down limit.
@@ -49,105 +50,108 @@ class LineFollower(object):
             # To make process faster.
             # TODO: Get multiple lines so that we can generate paths.
 
-            small_frame = cv2.resize(cv_image, (0, 0), fx=0.2, fy=0.2)
+            if cv_image:
+                small_frame = cv2.resize(cv_image, (0, 0), fx=0.2, fy=0.2)
 
-            height, width, channels = small_frame.shape
+                height, width, channels = small_frame.shape
 
-            rospy.logdebug("height=%s, width=%s" % (str(height), str(width)))
+                rospy.logdebug("height=%s, width=%s" % (str(height), str(width)))
 
-            #descentre = 160
-            #rows_to_watch = 100
-            #crop_img = small_frame[(height) / 2 + descentre:(height) / 2 + (descentre + rows_to_watch)][1:width]
-            crop_img = small_frame
+                #descentre = 160
+                #rows_to_watch = 100
+                #crop_img = small_frame[(height) / 2 + descentre:(height) / 2 + (descentre + rows_to_watch)][1:width]
+                crop_img = small_frame
 
-            # Convert from RGB to HSV
-            hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
+                # Convert from RGB to HSV
+                hsv = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
 
-            min_hsv = self.hsv * (1.0-(self._colour_error / 100.0))
-            max_hsv = self.hsv * (1.0 + (self._colour_error / 100.0))
-            lower_yellow = np.array(min_hsv)
-            upper_yellow = np.array(max_hsv)
+                min_hsv = self.hsv * (1.0-(self._colour_error / 100.0))
+                max_hsv = self.hsv * (1.0 + (self._colour_error / 100.0))
+                lower_yellow = np.array(min_hsv)
+                upper_yellow = np.array(max_hsv)
 
-            # Threshold the HSV image to get only yellow colors
-            mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+                # Threshold the HSV image to get only yellow colors
+                mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
-            # Bitwise-AND mask and original image
-            res = cv2.bitwise_and(crop_img, crop_img, mask=mask)
+                # Bitwise-AND mask and original image
+                res = cv2.bitwise_and(crop_img, crop_img, mask=mask)
 
-            if self.major == '3':
-                # If its 3
-                (_, contours, _) = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
+                if self.major == '3':
+                    # If its 3
+                    (_, contours, _) = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
 
+                else:
+                    # If its 2 or 4
+                    (contours, _) = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
+                rospy.logdebug("Number of centroids==>" + str(len(contours)))
+                centres = []
+                for i in range(len(contours)):
+                    moments = cv2.moments(contours[i])
+                    try:
+                        centres.append((int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00'])))
+                        cv2.circle(res, centres[-1], 10, (0, 255, 0), -1)
+                    except ZeroDivisionError:
+                        pass
+
+                rospy.logdebug(str(centres))
+                # Select the right centroid
+                # [(542, 39), (136, 46)], (x, y)
+                most_right_centroid_index = 0
+                index = 0
+                max_x_value = 0
+
+                centroids_detected = []
+
+                for candidate in centres:
+                    # Retrieve the cx value
+                    cx = candidate[0]
+                    # Get the Cx more to the right
+                    if cx >= max_x_value:
+                        max_x_value = cx
+                        most_right_centroid_index = index
+                    index += 1
+
+                    try:
+                        cx = centres[most_right_centroid_index][0]
+                        cy = centres[most_right_centroid_index][1]
+                        rospy.logdebug("Centroid FOUND ==" + str(cx) + "," + str(cy) + "")
+                    except:
+                        cy, cx = height / 2, width / 2
+
+                    centroids_detected.append([cx,cy])
+                    # Draw the centroid in the result image
+                    cv2.circle(res, (int(cx), int(cy)), 5, (0, 0, 255), -1)
+
+                if self._colour_cal:
+                    cv2.imshow("Original", small_frame)
+                else:
+                    #cv2.imshow("Original", small_frame)
+                    #cv2.imshow("HSV", hsv)
+                    #cv2.imshow("MASK", mask)
+                    cv2.imshow("RES", res)
+
+                # We send data from the first cetroid we get
+                if len(centroids_detected) > 0:
+
+                    cx_final = width
+                    cy_final = height
+
+                    for centroid in centroids_detected:
+                        # We get the values of the centroid closer to us
+                        #print(centroid)
+                        if centroid[1]< cy_final:
+                            cx_final = centroid[0]
+                            cy_final = centroid[1]
+                            #print("Selected CENTROID AS FINAL")
+                else:
+                    cx_final = None
+                    cy_final = None
+
+                self.move_robot(height, width, cx_final, cy_final)
+
+                cv2.waitKey(1)
             else:
-                # If its 2 or 4
-                (contours, _) = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
-            rospy.logdebug("Number of centroids==>" + str(len(contours)))
-            centres = []
-            for i in range(len(contours)):
-                moments = cv2.moments(contours[i])
-                try:
-                    centres.append((int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00'])))
-                    cv2.circle(res, centres[-1], 10, (0, 255, 0), -1)
-                except ZeroDivisionError:
-                    pass
-
-            rospy.logdebug(str(centres))
-            # Select the right centroid
-            # [(542, 39), (136, 46)], (x, y)
-            most_right_centroid_index = 0
-            index = 0
-            max_x_value = 0
-
-            centroids_detected = []
-
-            for candidate in centres:
-                # Retrieve the cx value
-                cx = candidate[0]
-                # Get the Cx more to the right
-                if cx >= max_x_value:
-                    max_x_value = cx
-                    most_right_centroid_index = index
-                index += 1
-
-                try:
-                    cx = centres[most_right_centroid_index][0]
-                    cy = centres[most_right_centroid_index][1]
-                    rospy.logdebug("Centroid FOUND ==" + str(cx) + "," + str(cy) + "")
-                except:
-                    cy, cx = height / 2, width / 2
-
-                centroids_detected.append([cx,cy])
-                # Draw the centroid in the result image
-                cv2.circle(res, (int(cx), int(cy)), 5, (0, 0, 255), -1)
-
-            if self._colour_cal:
-                cv2.imshow("Original", small_frame)
-            else:
-                #cv2.imshow("Original", small_frame)
-                #cv2.imshow("HSV", hsv)
-                #cv2.imshow("MASK", mask)
-                cv2.imshow("RES", res)
-            
-            # We send data from the first cetroid we get
-            if len(centroids_detected) > 0:
-                
-                cx_final = width
-                cy_final = height
-                
-                for centroid in centroids_detected:
-                    # We get the values of the centroid closer to us
-                    #print(centroid)
-                    if centroid[1]< cy_final:
-                        cx_final = centroid[0]
-                        cy_final = centroid[1]
-                        #print("Selected CENTROID AS FINAL")
-            else:
-                cx_final = None
-                cy_final = None
-                
-            self.move_robot(height, width, cx_final, cy_final)
-
-            cv2.waitKey(1)
+                pass
 
         else:
             self.droped_frames += 1
