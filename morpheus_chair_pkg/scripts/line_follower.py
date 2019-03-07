@@ -136,7 +136,7 @@ class LineFollower(object):
             
             
             
-    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.3, lineal_vel_min= 0.2, angular_vel_base = 0.1, movement_time = 0.05):
+    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.4, lineal_vel_min= 0.23, angular_vel_base = 0.2, movement_time = 0.02):
         """
         It move the Robot based on the Centroid Data
         image_dim_x=96, image_dim_y=128
