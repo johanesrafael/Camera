@@ -44,7 +44,7 @@ class CamTester(object):
             cv2.imshow("Original", small_frame)
             cv2.waitKey(1)
 
-            raw_input("Press to process next image")
+            #raw_input("Press to process next image")
 
 
         else:
