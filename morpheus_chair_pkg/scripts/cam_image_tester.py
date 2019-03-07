@@ -32,6 +32,7 @@ class CamTester(object):
             try:
                 # We select bgr8 because its the OpenCV encoding by default
                 cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
+                cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
             except CvBridgeError as e:
                 print(e)
                 cv_image = None
