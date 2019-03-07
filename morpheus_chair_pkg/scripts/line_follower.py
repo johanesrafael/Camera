@@ -31,7 +31,7 @@ class LineFollower(object):
     def camera_callback(self, data):
 
         # It seems that making tests, the rapsicam doesnt update the image until 6 frames have passed
-        self.process_this_frame = self.droped_frames >= 29
+        self.process_this_frame = self.droped_frames >= 2
 
         if self.process_this_frame:
             # We reset the counter
@@ -150,13 +150,17 @@ class LineFollower(object):
         
         FACTOR_LINEAR = 0.001
         FACTOR_ANGULAR = 0.1
-        
+
+        delta_left_percentage_not_important = 0.1
         
         if cx is not None and cy is not None:
             origin = [image_dim_x / 2.0, image_dim_y / 2.0]
             centroid = [cx, cy]
             delta_left_right = centroid[0] - origin[0]
-            print("delta_left_right===>"+str(delta_left_right))
+            print("delta_left_right===>" + str(delta_left_right))
+            if delta_left_right <= image_dim_x * delta_left_percentage_not_important:
+                print("delta_left_right TO SMALL <=" + str(image_dim_x* delta_left_percentage_not_important))
+                delta_left_right = 0.0
             delta = [delta_left_right, centroid[1]]
 
             # -1 because when delta is positive we want to turn right, which means sending a negative angular
@@ -170,17 +174,20 @@ class LineFollower(object):
             cmd_vel.linear.x = 0.0
             #print("NO CENTROID DETECTED...SEARCHING...")
 
+        min_lin = 0.26
+        min_ang = 0.53
+
         if cmd_vel.linear.x > 0:
-            cmd_vel_simple.linear.x = 0.5
+            cmd_vel_simple.linear.x = min_lin
         elif cmd_vel.linear.x < 0:
-            cmd_vel_simple.linear.x = -0.5
+            cmd_vel_simple.linear.x = -min_lin
         elif cmd_vel.linear.x == 0:
             cmd_vel_simple.linear.x = 0
 
         if cmd_vel.angular.z > 0:
-            cmd_vel_simple.angular.z = 1
+            cmd_vel_simple.angular.z = min_ang
         elif cmd_vel.angular.z < 0:
-            cmd_vel_simple.angular.z = -1
+            cmd_vel_simple.angular.z = -min_ang
         elif cmd_vel.angular.z == 0:
             cmd_vel_simple.angular.z = 0
 
