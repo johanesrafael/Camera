@@ -155,10 +155,13 @@ class MotorDriver(object):
 
             # We make it turn only on one wheel
             if right_wheel_rpm > left_wheel_rpm:
+                print("GO FORWARDS RIGHT")
                 self.right()
             if right_wheel_rpm < left_wheel_rpm:
+                print("GO FORWARDS LEFT")
                 self.left()
             if right_wheel_rpm == left_wheel_rpm:
+                print("GO FORWARDS")
                 self.forward()
 
         elif right_wheel_rpm > 0.0 and left_wheel_rpm == 0.0:
@@ -182,7 +185,19 @@ class MotorDriver(object):
         elif right_wheel_rpm < 0.0 and left_wheel_rpm < 0.0:
             print("All backwards")
             self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
-            self.reverse()
+
+            # We make it turn only on one wheel
+            if abs(right_wheel_rpm) > abs(left_wheel_rpm):
+                print("GO BACKWARDS RIGHT")
+                self.right()
+            if abs(right_wheel_rpm) < abs(left_wheel_rpm):
+                print("GO BACKWARDS LEFT")
+                self.left()
+            if right_wheel_rpm == left_wheel_rpm:
+                print("GO BACKWARDS")
+                self.reverse()
+
+
         elif right_wheel_rpm == 0.0 and left_wheel_rpm == 0.0:
             print("Right stop, left stop")
             self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
