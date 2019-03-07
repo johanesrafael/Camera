@@ -35,7 +35,7 @@ class LineFollower(object):
                 # We select bgr8 because its the OpenCV encoding by default
                 cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
             except CvBridgeError as e:
-                #print(e)
+                print(e)
 
             # We get image dimensions and crop the parts of the image we dont need
             # Bare in mind that because its image matrix first value is start and second value is down limit.
