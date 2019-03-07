@@ -14,6 +14,8 @@ class RobotMover(object):
                                          simple_mode=value_simple_mode)
         rospy.wait_for_service('/raspicam_node/start_capture')
 
+        rospy.loginfo("RobotMover Started...")
+
 
     def cmd_vel_callback(self, msg):
         linear_speed = msg.linear.x

@@ -35,7 +35,7 @@ class LineFollower(object):
                 # We select bgr8 because its the OpenCV encoding by default
                 cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
             except CvBridgeError as e:
-                print(e)
+                #print(e)
 
             # We get image dimensions and crop the parts of the image we dont need
             # Bare in mind that because its image matrix first value is start and second value is down limit.
@@ -47,7 +47,7 @@ class LineFollower(object):
 
             height, width, channels = small_frame.shape
 
-            rospy.loginfo("height=%s, width=%s" % (str(height), str(width)))
+            rospy.logdebug("height=%s, width=%s" % (str(height), str(width)))
 
             #descentre = 160
             #rows_to_watch = 100
@@ -75,7 +75,7 @@ class LineFollower(object):
             else:
                 # If its 2 or 4
                 (contours, _) = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
-            rospy.loginfo("Number of centroids==>" + str(len(contours)))
+            rospy.logdebug("Number of centroids==>" + str(len(contours)))
             centres = []
             for i in range(len(contours)):
                 moments = cv2.moments(contours[i])
@@ -85,7 +85,7 @@ class LineFollower(object):
                 except ZeroDivisionError:
                     pass
 
-            rospy.loginfo(str(centres))
+            rospy.logdebug(str(centres))
             # Select the right centroid
             # [(542, 39), (136, 46)], (x, y)
             most_right_centroid_index = 0
@@ -106,7 +106,7 @@ class LineFollower(object):
                 try:
                     cx = centres[most_right_centroid_index][0]
                     cy = centres[most_right_centroid_index][1]
-                    rospy.logwarn("Centroid FOUND ==" + str(cx) + "," + str(cy) + "")
+                    rospy.logdebug("Centroid FOUND ==" + str(cx) + "," + str(cy) + "")
                 except:
                     cy, cx = height / 2, width / 2
 
@@ -117,9 +117,9 @@ class LineFollower(object):
             if self._colour_cal:
                 cv2.imshow("Original", small_frame)
             else:
-                cv2.imshow("Original", small_frame)
-                cv2.imshow("HSV", hsv)
-                cv2.imshow("MASK", mask)
+                #cv2.imshow("Original", small_frame)
+                #cv2.imshow("HSV", hsv)
+                #cv2.imshow("MASK", mask)
                 cv2.imshow("RES", res)
             
             # We send data from the first cetroid we get
@@ -130,11 +130,11 @@ class LineFollower(object):
                 
                 for centroid in centroids_detected:
                     # We get the values of the centroid closer to us
-                    print(centroid)
+                    #print(centroid)
                     if centroid[1]< cy_final:
                         cx_final = centroid[0]
                         cy_final = centroid[1]
-                        print("Selected CENTROID AS FINAL")
+                        #print("Selected CENTROID AS FINAL")
             else:
                 cx_final = None
                 cy_final = None
@@ -142,12 +142,16 @@ class LineFollower(object):
             self.move_robot(height, width, cx_final, cy_final)
 
             cv2.waitKey(1)
+
+            raw_input("Press to process next image")
+
+
         else:
             self.process_this_frame = True
             
             
             
-    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.5, lineal_vel_min= 0.26, angular_vel_base = 0.2, movement_time = 0.1):
+    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.5, lineal_vel_min= 0.26, angular_vel_base = 0.2, movement_time = 0.05):
         """
         It move the Robot based on the Centroid Data
         image_dim_x=96, image_dim_y=128
@@ -164,11 +168,13 @@ class LineFollower(object):
         if cx is not None and cy is not None:
             origin = [image_dim_x / 2.0, image_dim_y / 2.0]
             centroid = [cx, cy]
-            delta = [centroid[0] - origin[0], centroid[1]]
+            delta_left_right = centroid[0] - origin[0]
+            print("delta_left_right===>"+str(delta_left_right))
+            delta = [delta_left_right, centroid[1]]
             
-            print("origin="+str(origin))
-            print("centroid="+str(centroid))
-            print("delta="+str(delta))
+            #print("origin="+str(origin))
+            #print("centroid="+str(centroid))
+            #print("delta="+str(delta))
             
             # -1 because when delta is positive we want to turn right, which means sending a negative angular
             cmd_vel.angular.z = angular_vel_base * delta[0] * FACTOR_ANGULAR * -1
@@ -179,7 +185,7 @@ class LineFollower(object):
         else:
             cmd_vel.angular.z = angular_vel_base * 2
             cmd_vel.linear.x = linear_vel_base * 0.5
-            print("NO CENTROID DETECTED...SEARCHING...")
+            #print("NO CENTROID DETECTED...SEARCHING...")
         
         print("SPEED==>["+str(cmd_vel.linear.x)+","+str(cmd_vel.angular.z)+"]")
         self.cmd_vel_pub.publish(cmd_vel)
@@ -196,7 +202,7 @@ class LineFollower(object):
         cmd_vel.linear.x = 0.0
         cmd_vel.angular.z = 0.0
         self.cmd_vel_pub.publish(cmd_vel)
-        print("Movement Finished...")
+        #print("Movement Finished...")
 
     def loop(self):
         rospy.spin()

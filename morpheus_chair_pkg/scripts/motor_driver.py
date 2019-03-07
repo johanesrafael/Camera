@@ -95,13 +95,13 @@ class MotorDriver(object):
 
         self.PWM1 = min(int((rpm_speed * multiplier) * self.BASE_PWM), self.MAX_PWM)
         self.p1.ChangeDutyCycle(self.PWM1)
-        print("M1="+str(self.PWM1))
+        #print("M1="+str(self.PWM1))
 
     def set_M2_speed(self, rpm_speed, multiplier):
 
         self.PWM2 = min(int(rpm_speed * multiplier * self.BASE_PWM), self.MAX_PWM)
         self.p2.ChangeDutyCycle(self.PWM2)
-        print("M2="+str(self.PWM2))
+        #print("M2="+str(self.PWM2))
 
     def calculate_body_turn_radius(self, linear_speed, angular_speed):
         if angular_speed != 0.0:
@@ -155,61 +155,61 @@ class MotorDriver(object):
 
     def set_wheel_movement(self, right_wheel_rpm, left_wheel_rpm):
 
-        print("W1,W2=["+str(right_wheel_rpm)+","+str(left_wheel_rpm)+"]")
+        #print("W1,W2=["+str(right_wheel_rpm)+","+str(left_wheel_rpm)+"]")
 
         if right_wheel_rpm > 0.0 and left_wheel_rpm > 0.0:
-            print("All forwards")
+            #print("All forwards")
             self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
 
             if self.simple_mode:
                 # We make it turn only on one wheel
                 if right_wheel_rpm > left_wheel_rpm:
-                    print("GO FORWARDS RIGHT")
+                    #print("GO FORWARDS RIGHT")
                     self.right()
                 if right_wheel_rpm < left_wheel_rpm:
-                    print("GO FORWARDS LEFT")
+                    #print("GO FORWARDS LEFT")
                     self.left()
                 if right_wheel_rpm == left_wheel_rpm:
-                    print("GO FORWARDS")
+                    #print("GO FORWARDS")
                     self.forward()
             else:
-                print("GO FORWARDS")
+                #print("GO FORWARDS")
                 self.forward()
 
 
 
         elif right_wheel_rpm > 0.0 and left_wheel_rpm == 0.0:
-            print("Right Wheel forwards, left stop")
+            #print("Right Wheel forwards, left stop")
             self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
             self.left()
 
         elif right_wheel_rpm > 0.0 and left_wheel_rpm < 0.0:
-            print("Right Wheel forwards, left backwards --> Pivot left")
+            #print("Right Wheel forwards, left backwards --> Pivot left")
             self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_PIVOT)
             self.pivot_left()
         elif right_wheel_rpm == 0.0 and left_wheel_rpm > 0.0:
-            print("Right stop, left forwards")
+            #print("Right stop, left forwards")
             self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
             self.right()
 
         elif right_wheel_rpm < 0.0 and left_wheel_rpm > 0.0:
-            print("Right backwards, left forwards --> Pivot right")
+            #print("Right backwards, left forwards --> Pivot right")
             self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_PIVOT)
             self.pivot_right()
         elif right_wheel_rpm < 0.0 and left_wheel_rpm < 0.0:
-            print("All backwards")
+            #print("All backwards")
             self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
 
             if self.simple_mode:
                 # We make it turn only on one wheel
                 if abs(right_wheel_rpm) > abs(left_wheel_rpm):
-                    print("GO BACKWARDS RIGHT")
+                    #print("GO BACKWARDS RIGHT")
                     self.right_reverse()
                 if abs(right_wheel_rpm) < abs(left_wheel_rpm):
-                    print("GO BACKWARDS LEFT")
+                    #print("GO BACKWARDS LEFT")
                     self.left_reverse()
                 if right_wheel_rpm == left_wheel_rpm:
-                    print("GO BACKWARDS")
+                    #print("GO BACKWARDS")
                     self.reverse()
             else:
                 self.reverse()
@@ -218,7 +218,7 @@ class MotorDriver(object):
 
 
         elif right_wheel_rpm == 0.0 and left_wheel_rpm == 0.0:
-            print("Right stop, left stop")
+            #print("Right stop, left stop")
             self.set_M1M2_speed(abs(right_wheel_rpm), abs(left_wheel_rpm), self.MULTIPLIER_STANDARD)
             self.stop()
         else:
