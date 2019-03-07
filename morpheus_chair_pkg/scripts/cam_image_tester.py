@@ -58,6 +58,8 @@ class CamTester(object):
             rospy.logdebug("height=%s, width=%s" % (str(height), str(width)))
             cv2.imshow("Original", small_frame)
             cv2.waitKey(1)
+            cv2.imshow("Original2", small_frame)
+            cv2.waitKey(1)
 
             raw_input("Press to process next image")
 
