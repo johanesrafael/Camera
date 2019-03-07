@@ -35,7 +35,7 @@ class LineFollower(object):
 
         if self.process_this_frame:
             # We reset the counter
-            print("Process Frame, Drpeed frame to==" + str(self.droped_frames))
+            print("Process Frame, Dropped frame to==" + str(self.droped_frames))
             self.droped_frames = 0
             try:
                 # We select bgr8 because its the OpenCV encoding by default
@@ -148,9 +148,6 @@ class LineFollower(object):
             self.move_robot(height, width, cx_final, cy_final)
 
             cv2.waitKey(1)
-
-            raw_input("Press to process next image")
-
 
         else:
             self.droped_frames += 1
