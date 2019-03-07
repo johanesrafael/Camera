@@ -35,7 +35,7 @@ class LineFollower(object):
 
         if self.process_this_frame:
             # We reset the counter
-            print("Process Frame, Dropped frame to==" + str(self.droped_frames))
+            #print("Process Frame, Dropped frame to==" + str(self.droped_frames))
             self.droped_frames = 0
             try:
                 # We select bgr8 because its the OpenCV encoding by default
@@ -100,7 +100,7 @@ class LineFollower(object):
                     try:
                         cx = centres[0][0]
                         cy = centres[0][1]
-                        rospy.logdebug("Centroid FOUND ==" + str(cx) + "," + str(cy) + "")
+                        rospy.loginfo("Centroid FOUND ==" + str(cx) + "," + str(cy) + "")
                     except:
                         cy, cx = height / 2, width / 2
 
@@ -115,7 +115,8 @@ class LineFollower(object):
                     cv2.imshow("RES", res)
                     cv2.waitKey(1)
                 else:
-                    pass
+                    cv2.imshow("RES", res)
+                    cv2.waitKey(1)
 
                 # We send data from the first cetroid we get
                 if len(centroids_detected) > 0:
@@ -131,7 +132,7 @@ class LineFollower(object):
 
         else:
             self.droped_frames += 1
-            print("Droped Frames==" + str(self.droped_frames))
+            #print("Droped Frames==" + str(self.droped_frames))
             
             
             
