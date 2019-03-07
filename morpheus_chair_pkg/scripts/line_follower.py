@@ -117,6 +117,7 @@ class LineFollower(object):
             if self._colour_cal:
                 cv2.imshow("Original", small_frame)
             else:
+                cv2.imshow("Original", small_frame)
                 cv2.imshow("HSV", hsv)
                 cv2.imshow("MASK", mask)
                 cv2.imshow("RES", res)
