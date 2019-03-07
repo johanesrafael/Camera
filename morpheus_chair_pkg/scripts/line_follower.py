@@ -164,8 +164,8 @@ class LineFollower(object):
             cmd_vel.linear.x = max(linear_vel_base - delta[1] * FACTOR_LINEAR, lineal_vel_min)
             
         else:
-            cmd_vel.angular.z = angular_vel_base * 2
-            cmd_vel.linear.x = linear_vel_base * 0.5
+            cmd_vel.angular.z = angular_vel_base
+            cmd_vel.linear.x = 0.0
             #print("NO CENTROID DETECTED...SEARCHING...")
         
         print("SPEED==>["+str(cmd_vel.linear.x)+","+str(cmd_vel.angular.z)+"]")
