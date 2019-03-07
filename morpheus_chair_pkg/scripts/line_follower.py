@@ -146,7 +146,7 @@ class LineFollower(object):
             
             
             
-    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.1, angular_vel_base = 0.1):
+    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.5, lineal_vel_min= 0.26, angular_vel_base = 0.2):
         """
         It move the Robot based on the Centroid Data
         image_dim_x=96, image_dim_y=128
@@ -172,7 +172,8 @@ class LineFollower(object):
             # -1 because when delta is positive we want to turn right, which means sending a negative angular
             cmd_vel.angular.z = angular_vel_base * delta[0] * FACTOR_ANGULAR * -1
             # If its further away it has to go faster, closer then slower
-            cmd_vel.linear.x = linear_vel_base - delta[1] * FACTOR_LINEAR
+            # We place a minimum based on the real robot. Below this cmd_vel the robot just doesnt move properly
+            cmd_vel.linear.x = max(linear_vel_base - delta[1] * FACTOR_LINEAR, lineal_vel_min)
             
         else:
             cmd_vel.angular.z = angular_vel_base * 2
