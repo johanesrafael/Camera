@@ -146,7 +146,7 @@ class LineFollower(object):
             
             
             
-    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.5, lineal_vel_min= 0.26, angular_vel_base = 0.2):
+    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.5, lineal_vel_min= 0.26, angular_vel_base = 0.2, movement_time = 0.1):
         """
         It move the Robot based on the Centroid Data
         image_dim_x=96, image_dim_y=128
@@ -182,6 +182,20 @@ class LineFollower(object):
         
         print("SPEED==>["+str(cmd_vel.linear.x)+","+str(cmd_vel.angular.z)+"]")
         self.cmd_vel_pub.publish(cmd_vel)
+        # We move for only a fraction of time
+        init_time = rospy.get_time()
+        finished_movement_time = False
+        rate_object = rospy.Rate(10)
+        while not finished_movement_time:
+            now_time = rospy.get_time()
+            delta = now_time - init_time
+            finished_movement_time = delta >= movement_time
+            rate_object.sleep()
+
+        cmd_vel.linear.x = 0.0
+        cmd_vel.angular.z = 0.0
+        self.cmd_vel_pub.publish(cmd_vel)
+        print("Movement Finished...")
 
     def loop(self):
         rospy.spin()
