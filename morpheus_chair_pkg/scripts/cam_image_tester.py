@@ -14,6 +14,7 @@ class CamTester(object):
 
         # This way we process only half the frames
         self.process_this_frame = True
+        self.droped_frames = 0
 
         self.bridge_object = CvBridge()
         self.image_sub = rospy.Subscriber(camera_topic, Image, self.camera_callback)
@@ -21,8 +22,13 @@ class CamTester(object):
 
     def camera_callback(self, data):
 
+        # It seems that making tests, the rapsicam doesnt update the image until 6 frames have passed
+        self.process_this_frame = self.droped_frames >= 6
+
         if self.process_this_frame:
-            self.process_this_frame = False
+            # We reset the counter
+            print("Process Frame, Dropped frame to==" + str(self.droped_frames))
+            self.droped_frames = 0
             try:
                 # We select bgr8 because its the OpenCV encoding by default
                 cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
@@ -40,8 +46,10 @@ class CamTester(object):
 
             raw_input("Press to process next image")
 
+
         else:
-            self.process_this_frame = True
+            self.droped_frames += 1
+            print("Dropped Frames==" + str(self.droped_frames))
             
 
     def loop(self):
