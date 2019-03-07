@@ -117,6 +117,7 @@ class LineFollower(object):
                     cv2.imshow("RES", res)
                     cv2.waitKey(1)
                 else:
+                    cv2.imshow("Original", small_frame)
                     cv2.imshow("RES", res)
                     cv2.waitKey(1)
 
