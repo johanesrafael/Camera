@@ -5,8 +5,8 @@
         <arg name="G" default="133" />
         <arg name="B" default="137" />
         <arg name="colour_error" default="10.0" />
-        <!-- mode if its different from colour cal, it will start following line-->
-        <arg name="mode" default="line_follow" />
+        <!-- mode if its different from colour_cal, it will start following line ( line_follow )-->
+        <arg name="mode" default="colour_cal" />
 
         <node name="line_follower_start"
             pkg="morpheus_chair_pkg"
