@@ -35,6 +35,7 @@ class LineFollower(object):
 
         if self.process_this_frame:
             # We reset the counter
+            print("Process Frame, Drpeed frame to==" + str(self.droped_frames))
             self.droped_frames = 0
             try:
                 # We select bgr8 because its the OpenCV encoding by default
@@ -153,6 +154,7 @@ class LineFollower(object):
 
         else:
             self.droped_frames += 1
+            print("Droped Frames==" + str(self.droped_frames))
             
             
             
