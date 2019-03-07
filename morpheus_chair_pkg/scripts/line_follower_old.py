@@ -94,12 +94,26 @@ class LineFollower(object):
                         pass
 
                 rospy.logdebug(str(centres))
+                # Select the right centroid
+                # [(542, 39), (136, 46)], (x, y)
+                most_right_centroid_index = 0
+                index = 0
+                max_x_value = 0
+
                 centroids_detected = []
 
-                if len(centres) > 0:
+                for candidate in centres:
+                    # Retrieve the cx value
+                    cx = candidate[0]
+                    # Get the Cx more to the right
+                    if cx >= max_x_value:
+                        max_x_value = cx
+                        most_right_centroid_index = index
+                    index += 1
+
                     try:
-                        cx = centres[0][0]
-                        cy = centres[0][1]
+                        cx = centres[most_right_centroid_index][0]
+                        cy = centres[most_right_centroid_index][1]
                         rospy.logdebug("Centroid FOUND ==" + str(cx) + "," + str(cy) + "")
                     except:
                         cy, cx = height / 2, width / 2
@@ -110,22 +124,32 @@ class LineFollower(object):
 
                 if self._colour_cal:
                     cv2.imshow("Original", small_frame)
+                else:
+                    #cv2.imshow("Original", small_frame)
                     #cv2.imshow("HSV", hsv)
                     #cv2.imshow("MASK", mask)
                     cv2.imshow("RES", res)
-                    cv2.waitKey(1)
-                else:
-                    pass
 
                 # We send data from the first cetroid we get
                 if len(centroids_detected) > 0:
-                    cx_final = centroids_detected[0][0]
-                    cy_final = centroids_detected[0][1]
+
+                    cx_final = width
+                    cy_final = height
+
+                    for centroid in centroids_detected:
+                        # We get the values of the centroid closer to us
+                        #print(centroid)
+                        if centroid[1]< cy_final:
+                            cx_final = centroid[0]
+                            cy_final = centroid[1]
+                            #print("Selected CENTROID AS FINAL")
                 else:
                     cx_final = None
                     cy_final = None
 
                 self.move_robot(height, width, cx_final, cy_final)
+
+                cv2.waitKey(1)
             else:
                 pass
 
@@ -135,7 +159,7 @@ class LineFollower(object):
             
             
             
-    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.3, lineal_vel_min= 0.2, angular_vel_base = 0.1, movement_time = 0.05):
+    def move_robot(self, image_dim_y, image_dim_x, cx, cy, linear_vel_base = 0.5, lineal_vel_min= 0.26, angular_vel_base = 0.2, movement_time = 0.05):
         """
         It move the Robot based on the Centroid Data
         image_dim_x=96, image_dim_y=128
@@ -155,7 +179,11 @@ class LineFollower(object):
             delta_left_right = centroid[0] - origin[0]
             print("delta_left_right===>"+str(delta_left_right))
             delta = [delta_left_right, centroid[1]]
-
+            
+            #print("origin="+str(origin))
+            #print("centroid="+str(centroid))
+            #print("delta="+str(delta))
+            
             # -1 because when delta is positive we want to turn right, which means sending a negative angular
             cmd_vel.angular.z = angular_vel_base * delta[0] * FACTOR_ANGULAR * -1
             # If its further away it has to go faster, closer then slower
