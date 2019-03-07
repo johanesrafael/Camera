@@ -31,7 +31,7 @@ class LineFollower(object):
     def camera_callback(self, data):
 
         # It seems that making tests, the rapsicam doesnt update the image until 6 frames have passed
-        self.process_this_frame = self.droped_frames >= 6
+        self.process_this_frame = self.droped_frames >= 29
 
         if self.process_this_frame:
             # We reset the counter
@@ -145,6 +145,8 @@ class LineFollower(object):
         cmd_vel = Twist()
         cmd_vel.linear.x = 0.0
         cmd_vel.angular.z = 0.0
+
+        cmd_vel_simple = Twist()
         
         FACTOR_LINEAR = 0.001
         FACTOR_ANGULAR = 0.1
@@ -161,15 +163,29 @@ class LineFollower(object):
             cmd_vel.angular.z = angular_vel_base * delta[0] * FACTOR_ANGULAR * -1
             # If its further away it has to go faster, closer then slower
             # We place a minimum based on the real robot. Below this cmd_vel the robot just doesnt move properly
-            cmd_vel.linear.x = max(linear_vel_base - delta[1] * FACTOR_LINEAR, lineal_vel_min)
+            cmd_vel.linear.x = linear_vel_base - delta[1] * FACTOR_LINEAR
             
         else:
             cmd_vel.angular.z = angular_vel_base
             cmd_vel.linear.x = 0.0
             #print("NO CENTROID DETECTED...SEARCHING...")
-        
-        print("SPEED==>["+str(cmd_vel.linear.x)+","+str(cmd_vel.angular.z)+"]")
-        self.cmd_vel_pub.publish(cmd_vel)
+
+        if cmd_vel.linear.x > 0:
+            cmd_vel_simple.linear.x = 0.5
+        elif cmd_vel.linear.x < 0:
+            cmd_vel_simple.linear.x = -0.5
+        elif cmd_vel.linear.x == 0:
+            cmd_vel_simple.linear.x = 0
+
+        if cmd_vel.angular.z > 0:
+            cmd_vel_simple.angular.z = 1
+        elif cmd_vel.angular.z < 0:
+            cmd_vel_simple.angular.z = -1
+        elif cmd_vel.angular.z == 0:
+            cmd_vel_simple.angular.z = 0
+
+        print("SPEED==>["+str(cmd_vel_simple.linear.x)+","+str(cmd_vel_simple.angular.z)+"]")
+        self.cmd_vel_pub.publish(cmd_vel_simple)
         # We move for only a fraction of time
         init_time = rospy.get_time()
         finished_movement_time = False
