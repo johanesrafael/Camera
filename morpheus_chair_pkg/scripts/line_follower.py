@@ -23,6 +23,8 @@ class LineFollower(object):
         # This way we process only half the frames
         self.process_this_frame = True
         self.droped_frames = 0
+        # 1 LEFT, -1 Right, 0 NO TURN
+        self.last_turn = 0
 
         self.bridge_object = CvBridge()
         self.image_sub = rospy.Subscriber(camera_topic, Image, self.camera_callback)
@@ -152,6 +154,8 @@ class LineFollower(object):
         FACTOR_ANGULAR = 0.1
 
         delta_left_percentage_not_important = 0.1
+        min_lin = 0.26
+        min_ang = 0.7
         
         if cx is not None and cy is not None:
             origin = [image_dim_x / 2.0, image_dim_y / 2.0]
@@ -168,14 +172,28 @@ class LineFollower(object):
             # If its further away it has to go faster, closer then slower
             # We place a minimum based on the real robot. Below this cmd_vel the robot just doesnt move properly
             cmd_vel.linear.x = linear_vel_base - delta[1] * FACTOR_LINEAR
+
+            if cmd_vel.angular.z > 0:
+                self.last_turn = 1
+            elif cmd_vel.angular.z < 0:
+                self.last_turn = -1
+            elif cmd_vel.angular.z == 0:
+                self.last_turn = 0
+
             
         else:
-            cmd_vel.angular.z = angular_vel_base
             cmd_vel.linear.x = 0.0
+
+
+            if self.last_turn > 0:
+                cmd_vel.angular.z = -angular_vel_base
+            elif self.last_turn <= 0:
+                cmd_vel.angular.z = angular_vel_base
+
+
+
             #print("NO CENTROID DETECTED...SEARCHING...")
 
-        min_lin = 0.26
-        min_ang = 0.53
 
         if cmd_vel.linear.x > 0:
             cmd_vel_simple.linear.x = min_lin
