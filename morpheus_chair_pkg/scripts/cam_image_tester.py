@@ -15,7 +15,6 @@ class CamTester(object):
         # This way we process only half the frames
         self.process_this_frame = True
         self.droped_frames = 0
-        self.process_image_ignore = False
 
         self.bridge_object = CvBridge()
         self.image_sub = rospy.Subscriber(camera_topic, Image, self.camera_callback)
@@ -25,7 +24,6 @@ class CamTester(object):
 
         # It seems that making tests, the rapsicam doesnt update the image until 6 frames have passed
         self.process_this_frame = self.droped_frames >= 6
-
 
         if self.process_this_frame:
             # We reset the counter
@@ -43,14 +41,8 @@ class CamTester(object):
             height, width, channels = small_frame.shape
 
             rospy.logdebug("height=%s, width=%s" % (str(height), str(width)))
-
-            if self.process_image_ignore:
-                print("IGNORE FRAME...")
-                self.process_image_ignore = False
-            else:
-                cv2.imshow("Original", small_frame)
-                cv2.waitKey(1)
-                self.process_image_ignore = True
+            cv2.imshow("Original", small_frame)
+            cv2.waitKey(1)
 
             raw_input("Press to process next image")
 
