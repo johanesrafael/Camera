@@ -31,7 +31,7 @@ class LineFollower(object):
     def camera_callback(self, data):
 
         # It seems that making tests, the rapsicam doesnt update the image until 6 frames have passed
-        self.process_this_frame = self.droped_frames >= 0
+        self.process_this_frame = self.droped_frames >= 6
 
         if self.process_this_frame:
             # We reset the counter
