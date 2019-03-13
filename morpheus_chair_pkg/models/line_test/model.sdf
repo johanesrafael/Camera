@@ -22,7 +22,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://line_test/meshes/test_floor.dae</uri>
+              <uri>model://line_test/meshes/test_floor_full.dae</uri>
               <scale>1 1 1</scale>
             </mesh>
           </geometry>
@@ -33,7 +33,7 @@
         </velocity_decay>
         <self_collide>0</self_collide>
         <kinematic>0</kinematic>
-        <gravity>1</gravity>        
-      </link>   
+        <gravity>1</gravity>
+      </link>
   </model>
 </sdf>
